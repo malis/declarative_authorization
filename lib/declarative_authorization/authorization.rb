@@ -78,7 +78,7 @@ module Authorization
     attr_reader :reader
 
     def_delegators :@reader, :auth_rules_reader, :privileges_reader, :load, :load!
-    def_delegators :auth_rules_reader, :auth_rules, :roles, :omnipotent_roles, :role_hierarchy, :role_titles, :role_descriptions
+    def_delegators :auth_rules_reader, :auth_rules, :roles, :omnipotent_roles, :role_hierarchy, :role_titles, :role_descriptions, :role_dependents
     def_delegators :privileges_reader, :privileges, :privilege_hierarchy
 
     # If +reader+ is not given, a new one is created with the default
@@ -241,6 +241,13 @@ module Authorization
       end.flatten
     end
 
+    # Returns the dependent for the given role.  The dependent may be
+    # specified with the authorization rules.  Returns +nil+ if none was
+    # given.
+    def dependent_for (role)
+      role_dependents[role]
+    end
+
     # Returns the description for the given role.  The description may be
     # specified with the authorization rules.  Returns +nil+ if none was
     # given.
@@ -352,7 +359,8 @@ module Authorization
       end
       result.flatten.uniq
     end
-public
+
+    public
     def flatten_role (role)
       @flatten_role_cache ||= {}
       return @flatten_role_cache[role] if @flatten_role_cache[role]
@@ -363,6 +371,7 @@ public
       @flatten_role_cache[role] = result.flatten.uniq
     end
 
+    private
     # Returns the privilege hierarchy flattened for given privileges in context.
     def flatten_privileges (privileges, context = nil, flattened_privileges = Set.new)
       # TODO caching?
