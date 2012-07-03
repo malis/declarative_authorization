@@ -590,7 +590,7 @@ module Authorization
             end
           when :is_in
             begin
-              evaluated.include?(attr_value)
+              evaluated == :unlimited ? true : evaluated.include?(attr_value)
             rescue NoMethodError => e
               raise AuthorizationUsageError, "Operator is_in requires a " +
                   "subclass of Enumerable as value, got: #{attr_value.inspect} " +
