@@ -582,7 +582,7 @@ module Authorization
             end
           when :intersects_with
             begin
-              !(evaluated.to_set & attr_value.to_set).empty?
+              evaluated == :unlimited ? true : !(evaluated.to_set & attr_value.to_set).empty?
             rescue NoMethodError => e
               raise AuthorizationUsageError, "Operator intersects_with requires " +
                   "subclasses of Enumerable, got: #{attr_value.inspect} " +
