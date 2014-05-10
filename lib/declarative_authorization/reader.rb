@@ -189,7 +189,7 @@ module Authorization
 
     class AuthorizationRulesReader
       attr_reader :roles, :role_hierarchy, :auth_rules,
-        :role_descriptions, :role_titles, :role_dependents, :omnipotent_roles # :nodoc:
+        :role_descriptions, :role_titles, :role_dependents, :role_privacy_sign, :omnipotent_roles # :nodoc:
 
       def initialize # :nodoc:
         @current_role = nil
@@ -201,12 +201,13 @@ module Authorization
         @role_titles = {}
         @role_descriptions = {}
         @role_dependents = {}
+        @role_privacy_sign = {}
         @auth_rules = AuthorizationRuleSet.new
       end
 
       def initialize_copy (from) # :nodoc:
         [:roles, :role_hierarchy, :auth_rules,
-            :role_descriptions, :role_titles, :role_dependents, :omnipotent_roles].each do |attribute|
+            :role_descriptions, :role_titles, :role_dependents, :role_privacy_sign, :omnipotent_roles].each do |attribute|
           instance_variable_set(:"@#{attribute}", from.send(attribute).clone)
         end
       end
@@ -216,6 +217,7 @@ module Authorization
         @role_titles[role] = options[:title] if options[:title]
         @role_descriptions[role] = options[:description] if options[:description]
         @role_dependents[role] = options[:dependent_on].to_sym if options[:dependent_on]
+        @role_privacy_sign[role] = !!options[:privacy_sign] if options[:privacy_sign]
       end
 
       # Defines the authorization rules for the given +role+ in the
@@ -317,6 +319,16 @@ module Authorization
       def description (text)
         raise DSLError, "description only allowed in role blocks" if @current_role.nil?
         role_descriptions[@current_role] = text
+      end
+
+      # Sets if privacy contract needs to be signed for the current role.  E.g.
+      #   role :admin
+      #     privacy_sign true
+      #     has_permission_on ...
+      #   end
+      def privacy_sign (value)
+        raise DSLError, "privacy_sign only allowed in role blocks" if @current_role.nil?
+        role_privacy_sign[@current_role] = !!value
       end
 
       # Sets a dependent for the current role.  E.g.

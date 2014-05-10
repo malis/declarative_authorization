@@ -78,7 +78,7 @@ module Authorization
     attr_reader :reader
 
     def_delegators :@reader, :auth_rules_reader, :privileges_reader, :load, :load!
-    def_delegators :auth_rules_reader, :auth_rules, :roles, :omnipotent_roles, :role_hierarchy, :role_titles, :role_descriptions, :role_dependents
+    def_delegators :auth_rules_reader, :auth_rules, :roles, :omnipotent_roles, :role_hierarchy, :role_titles, :role_descriptions, :role_dependents, :role_privacy_sign
     def_delegators :privileges_reader, :privileges, :privilege_hierarchy
 
     # If +reader+ is not given, a new one is created with the default
@@ -246,6 +246,13 @@ module Authorization
     # given.
     def dependent_for (role)
       role_dependents[role]
+    end
+
+    # Returns if privacy contract sign is needed for the given role.  The
+    # privacy contract sign may be specified with the authorization rules.
+    # Returns +nil+ of false if none was given.
+    def privacy_sign_for (role)
+      role_privacy_sign[role]
     end
 
     # Returns the description for the given role.  The description may be
